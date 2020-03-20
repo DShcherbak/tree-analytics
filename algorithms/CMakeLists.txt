@@ -3,4 +3,4 @@ project(algorithms)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_library(algorithms library.cpp library.h)
+add_library(algorithms BinaryTree.hpp RedBlackTree.cpp RedBlackTree.hpp)
