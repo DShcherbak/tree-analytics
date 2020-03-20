@@ -30,25 +30,15 @@ class RedBlackTree : BinaryTree<TreeItem>{
 private:
     RedBlackTree(): BinaryTree<TreeItem>::_root(nullptr) {}
 
-    void fixInsertion(RedBlackTreeNode<TreeItem> * node){
-        while (node->_parent._color == RED){
-            if (node->_parent._item < node->_parent._parent._item){
-                if (node->_parent._parent._right != nullptr){
-                    if (node->_parent._parent._right._color == RED){
-                        node->_parent._color = BLACK;
-                        node->_parent._parent._right._color == BLACK;
-                        node->_parent._parent = RED;
-                        node = node->_parent._parent;
-                    }
-                }
-                else {
-                    if (node->_parent._right == node){
-                        node = node->_parent;//tuta ostanovilsia
-                    }
-                }
-            }
-        }
+    void leftRotate(RedBlackTreeNode<TreeItem> * node){
+
     }
+
+    void rightRotate(RedBlackTreeNode<TreeItem> * node){
+
+    }
+
+    void fixInsertion(RedBlackTreeNode<TreeItem> * node);
     void insert(TreeItem item) override;
 };
 
@@ -82,6 +72,50 @@ void RedBlackTree<TreeItem>::insert(TreeItem item) {
     }
 }
 
+template<typename TreeItem>
+void RedBlackTree<TreeItem>::fixInsertion(RedBlackTreeNode<TreeItem> *node) {
+    while (node->_parent != nullptr && node->_parent._color == RED){
+        if (node->_parent == node->_parent->_parent->_left){
+            if (node->_parent->_parent->_right != nullptr){
+                if (node->_parent._parent._right._color == RED){
+                    node->_parent._color = BLACK;
+                    node->_parent._parent._right._color == BLACK;
+                    node->_parent._parent._color = RED;
+                    node = node->_parent._parent;
+                }
+            }
+            else {
+                if (node->_parent._right == node){
+                    node = node->_parent;//tuta ostanovilsia
+                    leftRotate(node);
+                }
+                node->_parent._color = BLACK;
+                node->_parent->_parent._color = RED;
+                rightRotate(node->_parent->_parent);
+            }
+        }
+        else {
+            if (node->_parent->_parent->_left != nullptr){
+                if (node->_parent._parent._left._color == RED){
+                    node->_parent._color = BLACK;
+                    node->_parent._parent._left._color == BLACK;
+                    node->_parent._parent._color = RED;
+                    node = node->_parent._parent;
+                }
+            }
+            else {
+                if (node->_parent._left == node){
+                    node = node->_parent;//tuta ostanovilsia
+                    rightRotate(node);
+                }
+                node->_parent._color = BLACK;
+                node->_parent->_parent._color = RED;
+                leftRotate(node->_parent->_parent);
+            }
+        }
+    }
+    BinaryTree<TreeItem>:: _root->_color = BLACK;
+}
 
 
 #endif //ALGORITHMS_REDBLACKTREE_HPP
