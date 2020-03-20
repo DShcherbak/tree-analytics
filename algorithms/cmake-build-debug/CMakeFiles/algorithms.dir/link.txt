@@ -1,2 +1,2 @@
-C:\PROGRA~2\CODEBL~1\MinGW\bin\ar.exe qc libalgorithms.a  CMakeFiles/algorithms.dir/library.cpp.obj
-C:\PROGRA~2\CODEBL~1\MinGW\bin\ranlib.exe libalgorithms.a
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ar qc libalgorithms.a  CMakeFiles/algorithms.dir/library.cpp.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ranlib libalgorithms.a

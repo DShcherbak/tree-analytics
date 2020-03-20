@@ -1,7 +1,7 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/algorithms.dir/library.cpp.obj"
-  "libalgorithms.a"
+  "CMakeFiles/algorithms.dir/library.cpp.o"
   "libalgorithms.pdb"
+  "libalgorithms.a"
 )
 
 # Per-language clean rules from dependency scanning.
