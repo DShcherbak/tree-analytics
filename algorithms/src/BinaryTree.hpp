@@ -15,10 +15,9 @@ template <typename T>
 class BinaryTree
 {
 public:
-    BinaryNode<T>* _root;
-    virtual void Insert(T value);
-    virtual void Remove(T value);
-    virtual BinaryNode<T>* Search(T value);
+    virtual void insert(T value);
+    virtual void remove(T value);
+    virtual BinaryNode<T>* search(T value);
 };
 
 #endif //ALGORITHMS_BINARYTREE_HPP

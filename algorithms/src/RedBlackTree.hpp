@@ -11,6 +11,8 @@
 enum color {
     RED, BLACK
 };
+template <typename TreeItem>
+class RedBlackTree;
 
 template <typename TreeItem>
 class RedBlackTreeNode : BinaryNode<TreeItem> {
@@ -22,37 +24,41 @@ public:
             RedBlackTreeNode<TreeItem> * left = nullptr,
             RedBlackTreeNode<TreeItem> * right = nullptr,
             RedBlackTreeNode<TreeItem> * parent = nullptr);
-    template <TreeItem> friend class RedBlackTree;
+    friend class RedBlackTree<TreeItem>;
 };
 
 template <typename TreeItem>
 class RedBlackTree : BinaryTree<TreeItem>{
 private:
-    RedBlackTree(): BinaryTree<TreeItem>::_root(nullptr) {}
-
-    void leftRotate(RedBlackTreeNode<TreeItem> * node){
-
-    }
-
-    void rightRotate(RedBlackTreeNode<TreeItem> * node){
+    RedBlackTreeNode <TreeItem> * _root;
+    void _leftRotate(RedBlackTreeNode<TreeItem> * node){
 
     }
 
-    void fixInsertion(RedBlackTreeNode<TreeItem> * node);
+    void _rightRotate(RedBlackTreeNode<TreeItem> * node){
+
+    }
+
+    void _fixInsertion(RedBlackTreeNode<TreeItem> * node);
+
+public:
+    RedBlackTree(){
+        _root = nullptr;
+    }
     void insert(TreeItem item) override;
 };
 
 template<typename TreeItem>
 void RedBlackTree<TreeItem>::insert(TreeItem item) {
-    if (BinaryTree<TreeItem>::_root == nullptr){
-        BinaryTree<TreeItem>::_root = new RedBlackTreeNode<TreeItem>(item);
-        BinaryTree<TreeItem>::_root->_color = BLACK;
+    if (_root == nullptr){
+        _root = new RedBlackTreeNode<TreeItem>(item);
+        _root->_color = BLACK;
     }
     else {
-        RedBlackTreeNode<TreeItem> *current_node = BinaryTree<TreeItem>::_root;
+        RedBlackTreeNode<TreeItem> *current_node = _root;
         RedBlackTreeNode<TreeItem> *previous_node = nullptr;
         while (current_node != nullptr) {
-            if (item < current_node->_item) {
+            if (item < current_node->_value) {
                 previous_node = current_node;
                 current_node = current_node->_left;
             } else {
@@ -68,12 +74,12 @@ void RedBlackTree<TreeItem>::insert(TreeItem item) {
         else {
             previous_node->_right = current_node;
         }
-        fixInsertion(current_node);
+        _fixInsertion(current_node);
     }
 }
 
 template<typename TreeItem>
-void RedBlackTree<TreeItem>::fixInsertion(RedBlackTreeNode<TreeItem> *node) {
+void RedBlackTree<TreeItem>::_fixInsertion(RedBlackTreeNode<TreeItem> *node) {
     while (node->_parent != nullptr && node->_parent._color == RED){
         if (node->_parent == node->_parent->_parent->_left){
             if (node->_parent->_parent->_right != nullptr){
@@ -87,11 +93,11 @@ void RedBlackTree<TreeItem>::fixInsertion(RedBlackTreeNode<TreeItem> *node) {
             else {
                 if (node->_parent._right == node){
                     node = node->_parent;//tuta ostanovilsia
-                    leftRotate(node);
+                    _leftRotate(node);
                 }
                 node->_parent._color = BLACK;
                 node->_parent->_parent._color = RED;
-                rightRotate(node->_parent->_parent);
+                _rightRotate(node->_parent->_parent);
             }
         }
         else {
@@ -106,11 +112,11 @@ void RedBlackTree<TreeItem>::fixInsertion(RedBlackTreeNode<TreeItem> *node) {
             else {
                 if (node->_parent._left == node){
                     node = node->_parent;//tuta ostanovilsia
-                    rightRotate(node);
+                    _rightRotate(node);
                 }
                 node->_parent._color = BLACK;
                 node->_parent->_parent._color = RED;
-                leftRotate(node->_parent->_parent);
+                _leftRotate(node->_parent->_parent);
             }
         }
     }
