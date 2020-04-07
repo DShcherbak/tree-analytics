@@ -23,7 +23,7 @@ TEST(RBTree, CreationSearcing){
 
 TEST(RBTree, Height){
     RedBlackTree<int> tree;
-    for (int i = 0 ; i < 100000; ++i) {
+    for (int i = 0 ; i < 1000; ++i) {
         tree.insert(i);
         EXPECT_TRUE(tree.height() <int(2 * (std::log2(i + 1) + 1)));
     }
@@ -43,8 +43,28 @@ TEST(RBTree, Remove){
         EXPECT_TRUE(tree.search(i) != nullptr);
     }
     for (int i = 5; i < 10; ++i)
-        EXPECT_EQ(tree.search(5), nullptr);
+        EXPECT_EQ(tree.search(i), nullptr);
     for (int i = 10; i < 20; ++i){
         EXPECT_TRUE(tree.search(i) != nullptr);
     }
+}
+
+TEST(RBTree, size){
+    RedBlackTree<int> tree;
+    for (int i = 0 ; i < 20; ++i) {
+        tree.insert(i);
+    }
+    for (int i = 1 ; i <= 20; ++i) {
+        EXPECT_TRUE(tree.select(i) != nullptr);
+        EXPECT_EQ(tree.select(i)->value(), i - 1);
+    }
+    tree.remove(tree.search(5));
+    tree.remove(tree.search(6));
+    tree.remove(tree.search(7));
+    tree.remove(tree.search(8));
+    tree.remove(tree.search(9));
+    /*for (int i = 6 ; i <= 15; ++i) {
+        EXPECT_TRUE(tree.select(i) != nullptr);
+        EXPECT_EQ(tree.select(i)->value(), i + 4);
+    }*/
 }
