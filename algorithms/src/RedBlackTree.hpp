@@ -107,66 +107,7 @@ public:
         return events;
     }
 
-    void deleteFixup(Node *x) {
-
-        /*************************************
-         *  maintain Red-Black tree balance  *
-         *  after deleting node x            *
-         *************************************/
-
-        while (x != root && x->color == BLACK) {
-            if (x == x->parent->left) {
-                Node *w = x->parent->right;
-                if (w->color == RED) {
-                    w->color = BLACK;
-                    x->parent->color = RED;
-                    rotateLeft (x->parent);
-                    w = x->parent->right;
-                }
-                if (w->left->color == BLACK && w->right->color == BLACK) {
-                    w->color = RED;
-                    x = x->parent;
-                } else {
-                    if (w->right->color == BLACK) {
-                        w->left->color = BLACK;
-                        w->color = RED;
-                        rotateRight (w);
-                        w = x->parent->right;
-                    }
-                    w->color = x->parent->color;
-                    x->parent->color = BLACK;
-                    w->right->color = BLACK;
-                    rotateLeft (x->parent);
-                    x = root;
-                }
-            } else {
-                Node *w = x->parent->left;
-                if (w->color == RED) {
-                    w->color = BLACK;
-                    x->parent->color = RED;
-                    rotateRight (x->parent);
-                    w = x->parent->left;
-                }
-                if (w->right->color == BLACK && w->left->color == BLACK) {
-                    w->color = RED;
-                    x = x->parent;
-                } else {
-                    if (w->left->color == BLACK) {
-                        w->right->color = BLACK;
-                        w->color = RED;
-                        rotateLeft (w);
-                        w = x->parent->left;
-                    }
-                    w->color = x->parent->color;
-                    x->parent->color = BLACK;
-                    w->left->color = BLACK;
-                    rotateRight (x->parent);
-                    x = root;
-                }
-            }
-        }
-        x->color = BLACK;
-    }
+    void deleteFixup(RedBlackTreeNode <TreeItem> * x);
 
     void remove(RedBlackTreeNode <TreeItem> * z) {
         RedBlackTreeNode <TreeItem> *x, *y;
@@ -200,7 +141,7 @@ public:
             _root = x;
 
         if (y != z)
-            z->value() = y->value();
+            z->_value = y->value();
 
 
         if (y->_color == BLACK)
@@ -314,6 +255,68 @@ RedBlackTreeNode<TreeItem> *RedBlackTree<TreeItem>::search(TreeItem item) {
             node = node->_right;
     }
     return node;
+}
+
+template<typename TreeItem>
+void RedBlackTree<TreeItem>::deleteFixup(RedBlackTreeNode<TreeItem> *x) {
+
+    /*************************************
+     *  maintain Red-Black tree balance  *
+     *  after deleting node x            *
+     *************************************/
+
+    while (x != _root && x->_color == BLACK) {
+        if (x == x->_parent->_left) {
+            RedBlackTreeNode <TreeItem> * w = x->_parent->_right;
+            if (w->_color == RED) {
+                w->_color = BLACK;
+                x->_parent->_color = RED;
+                _leftRotate (x->_parent);
+                w = x->_parent->_right;
+            }
+            if (w->_left->_color == BLACK && w->_right->_color == BLACK) {
+                w->_color = RED;
+                x = x->_parent;
+            } else {
+                if (w->_right->_color == BLACK) {
+                    w->_left->_color = BLACK;
+                    w->_color = RED;
+                    _rightRotate (w);
+                    w = x->_parent->_right;
+                }
+                w->_color = x->_parent->_color;
+                x->_parent->_color = BLACK;
+                w->_right->_color = BLACK;
+                _leftRotate (x->_parent);
+                x = _root;
+            }
+        } else {
+            RedBlackTreeNode <TreeItem> * w = x->_parent->_left;
+            if (w->_color == RED) {
+                w->_color = BLACK;
+                x->_parent->_color = RED;
+                _rightRotate(x->_parent);
+                w = x->_parent->_left;
+            }
+            if (w->_right->_color == BLACK && w->_left->_color == BLACK) {
+                w->_color = RED;
+                x = x->_parent;
+            } else {
+                if (w->_left->_color == BLACK) {
+                    w->_right->_color = BLACK;
+                    w->_color = RED;
+                    _leftRotate(w);
+                    w = x->_parent->_left;
+                }
+                w->_color = x->_parent->_color;
+                x->_parent->_color = BLACK;
+                w->_left->_color = BLACK;
+                _rightRotate (x->_parent);
+                x = _root;
+            }
+        }
+    }
+    x->_color = BLACK;
 }
 
 
