@@ -5,8 +5,9 @@
 #include <gtest/gtest.h>
 #include "../src/RedBlackTree.hpp"
 #include <iostream>
+#include <cmath>
 
-TEST(RBTree, Creation){
+TEST(RBTree, CreationSearcing){
     //RedBlackTreeNode<int> * node;
     RedBlackTree<int> tree;
     tree.insert(3);
@@ -22,22 +23,28 @@ TEST(RBTree, Creation){
 
 TEST(RBTree, Height){
     RedBlackTree<int> tree;
-    for (int i = 0 ; i < 20; ++i) {
+    for (int i = 0 ; i < 100000; ++i) {
         tree.insert(i);
+        EXPECT_TRUE(tree.height() <int(2 * (std::log2(i + 1) + 1)));
     }
-    /*std::vector<std::pair<int, int>> order = tree.print();
-    for (auto i : order) {
-        std::cout << "\t" <<i.first << " " << i.second << "\n";
-    }*/
 }
 
 TEST(RBTree, Remove){
-    /*RedBlackTree<int> tree;
+    RedBlackTree<int> tree;
     for (int i = 0 ; i < 20; ++i) {
         tree.insert(i);
     }
-    auto * node = tree.search(7);
-    std::cout << node->value();
-    tree.remove(node);*/
-    //EXPECT_EQ(tree.search(5), nullptr);
+    tree.remove(tree.search(5));
+    tree.remove(tree.search(6));
+    tree.remove(tree.search(7));
+    tree.remove(tree.search(8));
+    tree.remove(tree.search(9));
+    for (int i = 0; i < 5; ++i){
+        EXPECT_TRUE(tree.search(i) != nullptr);
+    }
+    for (int i = 5; i < 10; ++i)
+        EXPECT_EQ(tree.search(5), nullptr);
+    for (int i = 10; i < 20; ++i){
+        EXPECT_TRUE(tree.search(i) != nullptr);
+    }
 }

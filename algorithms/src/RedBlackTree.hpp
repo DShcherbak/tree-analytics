@@ -43,113 +43,30 @@ template <typename TreeItem>
 class RedBlackTree {
 private:
     RedBlackTreeNode <TreeItem> * _root;
-    void _leftRotate(RedBlackTreeNode<TreeItem> * node){
-        RedBlackTreeNode<TreeItem> * y = node->_right;
-        RedBlackTreeNode<TreeItem> * x = y->_left;
-        y->_parent = node->_parent;
-        if (node->_parent == nullptr){
-            _root = y;
-        }
-        else if (node == node->_parent->_left){
-            node->_parent->_left = y;
-        }
-        else node->_parent->_right = y;
-        node->_parent = y;
-        y->_left = node;
-        node->_right = x;
-        if (x != nullptr)
-            x->_parent = node;
-    }
+    void _leftRotate(RedBlackTreeNode<TreeItem> * node);
 
-    void _rightRotate(RedBlackTreeNode<TreeItem> * node){
-        RedBlackTreeNode<TreeItem> * y = node->_left;
-        RedBlackTreeNode<TreeItem> * x = y->_right;
-        y->_parent = node->_parent;
-        if (node->_parent == nullptr){
-            _root = y;
-        }
-        else if (node == node->_parent->_left){
-            node->_parent->_left = y;
-        }
-        else node->_parent->_right = y;
-        node->_parent = y;
-        y->_right = node;
-        node->_left = x;
-        if (x != nullptr)
-            x->_parent = node;
-    }
+    void _rightRotate(RedBlackTreeNode<TreeItem> * node);
 
     void _fixInsertion(RedBlackTreeNode<TreeItem> * node);
 
-    void print(RedBlackTreeNode<TreeItem> * node, std::vector<std::pair<TreeItem, TreeItem>> &events){
-        std::cout << "\t!" << node->value() << " " <<  node->_color<< "\n";
-        if (node->_left != nullptr){
-            events.push_back({node->value(),node->_left->value()});
-            print(node->_left, events);
-        }
-        if (node->_right != nullptr){
-            events.push_back({node->value(),node->_right->value()});
-            print(node->_right, events);
-        }
-    }
+    void _print(RedBlackTreeNode<TreeItem> * node, std::vector<std::pair<TreeItem, TreeItem>> &events);
+
+    void _fixDeleting(RedBlackTreeNode <TreeItem> * x);
+
+    int _height(RedBlackTreeNode<TreeItem> * node);
 
 public:
-    RedBlackTree(){
-        _root = nullptr;
-    }
+    RedBlackTree();
+
     void insert(TreeItem item);
 
     RedBlackTreeNode <TreeItem> * search(TreeItem item);
 
-    std::vector<std::pair<TreeItem, TreeItem>> print() {
-        std::vector<std::pair<TreeItem, TreeItem>> events;
-        print(_root, events);
-        return events;
-    }
+    std::vector<std::pair<TreeItem, TreeItem>> print();
 
-    void deleteFixup(RedBlackTreeNode <TreeItem> * x);
+    void remove(RedBlackTreeNode <TreeItem> * z);
 
-    void remove(RedBlackTreeNode <TreeItem> * z) {
-        RedBlackTreeNode <TreeItem> *x, *y;
-        if (z->_left == nullptr && z->_right == nullptr){
-            z = nullptr;
-        }
-        if (z == nullptr) return;
-        if (z->_left == nullptr || z->_right == nullptr) {
-            /* y has a NIL node as a child */
-            y = z;
-        } else {
-            /* find tree successor with a NIL node as a child */
-            y = z->_right;
-            while (y->_left != nullptr) y = y->_left;
-        }
-
-        /* x is y's only child */
-        if (y->_left != nullptr)
-            x = y->_left;
-        else
-            x = y->_right;
-
-        /* remove y from the parent chain */
-        x->_parent = y->_parent;
-        if (y->_parent)
-            if (y == y->_parent->_left)
-                y->_parent->_left = x;
-            else
-                y->_parent->_right = x;
-        else
-            _root = x;
-
-        if (y != z)
-            z->_value = y->value();
-
-
-        if (y->_color == BLACK)
-            deleteFixup (x);
-
-        free (y);
-    }
-
+    int height();
 };
 
 template<typename TreeItem>
@@ -258,13 +175,9 @@ RedBlackTreeNode<TreeItem> *RedBlackTree<TreeItem>::search(TreeItem item) {
 }
 
 template<typename TreeItem>
-void RedBlackTree<TreeItem>::deleteFixup(RedBlackTreeNode<TreeItem> *x) {
-
-    /*************************************
-     *  maintain Red-Black tree balance  *
-     *  after deleting node x            *
-     *************************************/
-
+void RedBlackTree<TreeItem>::_fixDeleting(RedBlackTreeNode<TreeItem> *x) {
+    if (x == nullptr)
+        return;
     while (x != _root && x->_color == BLACK) {
         if (x == x->_parent->_left) {
             RedBlackTreeNode <TreeItem> * w = x->_parent->_right;
@@ -317,6 +230,121 @@ void RedBlackTree<TreeItem>::deleteFixup(RedBlackTreeNode<TreeItem> *x) {
         }
     }
     x->_color = BLACK;
+}
+
+template<typename TreeItem>
+std::vector<std::pair<TreeItem, TreeItem>> RedBlackTree<TreeItem>::print() {
+    std::vector<std::pair<TreeItem, TreeItem>> events;
+    _print(_root, events);
+    return events;
+}
+
+template<typename TreeItem>
+void RedBlackTree<TreeItem>::_leftRotate(RedBlackTreeNode<TreeItem> *node) {
+    RedBlackTreeNode<TreeItem> * y = node->_right;
+    RedBlackTreeNode<TreeItem> * x = y->_left;
+    y->_parent = node->_parent;
+    if (node->_parent == nullptr){
+        _root = y;
+    }
+    else if (node == node->_parent->_left){
+        node->_parent->_left = y;
+    }
+    else node->_parent->_right = y;
+    node->_parent = y;
+    y->_left = node;
+    node->_right = x;
+    if (x != nullptr)
+        x->_parent = node;
+}
+
+template<typename TreeItem>
+void RedBlackTree<TreeItem>::_rightRotate(RedBlackTreeNode<TreeItem> *node) {
+    RedBlackTreeNode<TreeItem> * y = node->_left;
+    RedBlackTreeNode<TreeItem> * x = y->_right;
+    y->_parent = node->_parent;
+    if (node->_parent == nullptr){
+        _root = y;
+    }
+    else if (node == node->_parent->_left){
+        node->_parent->_left = y;
+    }
+    else node->_parent->_right = y;
+    node->_parent = y;
+    y->_right = node;
+    node->_left = x;
+    if (x != nullptr)
+        x->_parent = node;
+}
+
+template<typename TreeItem>
+void RedBlackTree<TreeItem>::_print(RedBlackTreeNode<TreeItem> *node, std::vector<std::pair<TreeItem, TreeItem>> &events) {
+    std::cout << "\t!" << node->value() << " " <<  node->_color<< "\n";
+    if (node->_left != nullptr){
+        events.push_back({node->value(),node->_left->value()});
+        _print(node->_left, events);
+    }
+    if (node->_right != nullptr){
+        events.push_back({node->value(),node->_right->value()});
+        _print(node->_right, events);
+    }
+}
+
+template<typename TreeItem>
+void RedBlackTree<TreeItem>::remove(RedBlackTreeNode<TreeItem> *z) {
+    RedBlackTreeNode <TreeItem> *x, *y;
+    if (z->_left == nullptr && z->_right == nullptr){
+        z = nullptr;
+    }
+    if (z == nullptr) return;
+    if (z->_left == nullptr || z->_right == nullptr) {
+        /* y has a NIL node as a child */
+        y = z;
+    } else {
+        /* find tree successor with a NIL node as a child */
+        y = z->_right;
+        while (y->_left != nullptr) y = y->_left;
+    }
+    /* x is y's only child */
+    if (y->_left != nullptr)
+        x = y->_left;
+    else
+        x = y->_right;
+    /* remove y from the parent chain */
+    if (x != nullptr && y != nullptr)
+        x->_parent = y->_parent;
+    if (y->_parent)
+        if (y == y->_parent->_left)
+            y->_parent->_left = x;
+        else
+            y->_parent->_right = x;
+    else
+        _root = x;
+    if (y != z)
+        z->_value = y->value();
+
+
+    if (y->_color == BLACK)
+        _fixDeleting (x);
+
+    delete y;
+}
+
+template<typename TreeItem>
+RedBlackTree<TreeItem>::RedBlackTree() {
+    _root = nullptr;
+}
+
+template<typename TreeItem>
+int RedBlackTree<TreeItem>::_height(RedBlackTreeNode<TreeItem> *node) {
+    if (node == nullptr)
+        return 0;
+    return std::max(_height(node->_left), _height(node->_right)) + 1;
+}
+
+template<typename TreeItem>
+int RedBlackTree<TreeItem>::height() {
+    return _height(_root);
 }
 
 
