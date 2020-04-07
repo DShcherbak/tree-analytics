@@ -7,6 +7,10 @@
 
 #include "BinaryTree.hpp"
 
+#include <string>
+#include <vector>
+#include <iostream>
+
 
 
 enum color {
@@ -77,6 +81,18 @@ private:
 
     void _fixInsertion(RedBlackTreeNode<TreeItem> * node);
 
+    void print(RedBlackTreeNode<TreeItem> * node, std::vector<std::pair<TreeItem, TreeItem>> &events){
+        std::cout << "\t!" << node->value() << " " <<  node->_color<< "\n";
+        if (node->_left != nullptr){
+            events.push_back({node->value(),node->_left->value()});
+            print(node->_left, events);
+        }
+        if (node->_right != nullptr){
+            events.push_back({node->value(),node->_right->value()});
+            print(node->_right, events);
+        }
+    }
+
 public:
     RedBlackTree(){
         _root = nullptr;
@@ -84,6 +100,115 @@ public:
     void insert(TreeItem item);
 
     RedBlackTreeNode <TreeItem> * search(TreeItem item);
+
+    std::vector<std::pair<TreeItem, TreeItem>> print() {
+        std::vector<std::pair<TreeItem, TreeItem>> events;
+        print(_root, events);
+        return events;
+    }
+
+    void deleteFixup(Node *x) {
+
+        /*************************************
+         *  maintain Red-Black tree balance  *
+         *  after deleting node x            *
+         *************************************/
+
+        while (x != root && x->color == BLACK) {
+            if (x == x->parent->left) {
+                Node *w = x->parent->right;
+                if (w->color == RED) {
+                    w->color = BLACK;
+                    x->parent->color = RED;
+                    rotateLeft (x->parent);
+                    w = x->parent->right;
+                }
+                if (w->left->color == BLACK && w->right->color == BLACK) {
+                    w->color = RED;
+                    x = x->parent;
+                } else {
+                    if (w->right->color == BLACK) {
+                        w->left->color = BLACK;
+                        w->color = RED;
+                        rotateRight (w);
+                        w = x->parent->right;
+                    }
+                    w->color = x->parent->color;
+                    x->parent->color = BLACK;
+                    w->right->color = BLACK;
+                    rotateLeft (x->parent);
+                    x = root;
+                }
+            } else {
+                Node *w = x->parent->left;
+                if (w->color == RED) {
+                    w->color = BLACK;
+                    x->parent->color = RED;
+                    rotateRight (x->parent);
+                    w = x->parent->left;
+                }
+                if (w->right->color == BLACK && w->left->color == BLACK) {
+                    w->color = RED;
+                    x = x->parent;
+                } else {
+                    if (w->left->color == BLACK) {
+                        w->right->color = BLACK;
+                        w->color = RED;
+                        rotateLeft (w);
+                        w = x->parent->left;
+                    }
+                    w->color = x->parent->color;
+                    x->parent->color = BLACK;
+                    w->left->color = BLACK;
+                    rotateRight (x->parent);
+                    x = root;
+                }
+            }
+        }
+        x->color = BLACK;
+    }
+
+    void remove(RedBlackTreeNode <TreeItem> * z) {
+        RedBlackTreeNode <TreeItem> *x, *y;
+        if (z->_left == nullptr && z->_right == nullptr){
+            z = nullptr;
+        }
+        if (z == nullptr) return;
+        if (z->_left == nullptr || z->_right == nullptr) {
+            /* y has a NIL node as a child */
+            y = z;
+        } else {
+            /* find tree successor with a NIL node as a child */
+            y = z->_right;
+            while (y->_left != nullptr) y = y->_left;
+        }
+
+        /* x is y's only child */
+        if (y->_left != nullptr)
+            x = y->_left;
+        else
+            x = y->_right;
+
+        /* remove y from the parent chain */
+        x->_parent = y->_parent;
+        if (y->_parent)
+            if (y == y->_parent->_left)
+                y->_parent->_left = x;
+            else
+                y->_parent->_right = x;
+        else
+            _root = x;
+
+        if (y != z)
+            z->value() = y->value();
+
+
+        if (y->_color == BLACK)
+            deleteFixup (x);
+
+        free (y);
+    }
+
 };
 
 template<typename TreeItem>
@@ -123,28 +248,46 @@ void RedBlackTree<TreeItem>::_fixInsertion(RedBlackTreeNode<TreeItem> *node) {
             if (node->_parent->_parent->_right != nullptr){
                 if (node->_parent->_parent->_right->_color == RED){
                     node->_parent->_color = BLACK;
-                    node->_parent->_parent->_right->_color == BLACK;
+                    node->_parent->_parent->_right->_color = BLACK;
                     node->_parent->_parent->_color = RED;
                     node = node->_parent->_parent;
                 }
+                else {
+                    if (node == node->_parent->_right){
+                        node = node->_parent;
+                        _leftRotate(node);
+                    }
+                    node->_parent->_color = BLACK;
+                    node->_parent->_parent->_color = RED;
+                    _rightRotate(node->_parent->_parent);
+                }
             }
             else {
-                if (node->_parent->_right == node){
-                    node = node->_parent;//tuta ostanovilsia
-                    _leftRotate(node);
-                }
-                node->_parent->_color = BLACK;
-                node->_parent->_parent->_color = RED;
-                _rightRotate(node->_parent->_parent);
+                    if (node == node->_parent->_right){
+                        node = node->_parent;
+                        _leftRotate(node);
+                    }
+                    node->_parent->_color = BLACK;
+                    node->_parent->_parent->_color = RED;
+                    _rightRotate(node->_parent->_parent);
             }
         }
         else {
             if (node->_parent->_parent->_left != nullptr){
                 if (node->_parent->_parent->_left->_color == RED){
                     node->_parent->_color = BLACK;
-                    node->_parent->_parent->_left->_color == BLACK;
+                    node->_parent->_parent->_left->_color = BLACK;
                     node->_parent->_parent->_color = RED;
                     node = node->_parent->_parent;
+                }
+                else {
+                    if (node->_parent->_left == node){
+                        node = node->_parent;//tuta ostanovilsia
+                        _rightRotate(node);
+                    }
+                    node->_parent->_color = BLACK;
+                    node->_parent->_parent->_color = RED;
+                    _leftRotate(node->_parent->_parent);
                 }
             }
             else {

@@ -19,3 +19,27 @@ TEST(RBTree, Creation){
     EXPECT_EQ(tree.search(2)->value(), 2);
     EXPECT_EQ(tree.search(17)->value(), 17);
 }
+
+TEST(RBTree, Height){
+
+    std::cout << "black is " << color::BLACK << "\n";
+    RedBlackTree<int> tree;
+    for (int i = 0 ; i < 20; ++i) {
+        tree.insert(i);
+    }
+    std::vector<std::pair<int, int>> order = tree.print();
+    for (auto i : order) {
+        std::cout << "\t" <<i.first << " " << i.second << "\n";
+    }
+}
+
+TEST(RBTree, Remove){
+
+    std::cout << "black is " << color::BLACK << "\n";
+    RedBlackTree<int> tree;
+    for (int i = 0 ; i < 20; ++i) {
+        tree.insert(i);
+    }
+    tree.remove(tree.search(5));
+    EXPECT_EQ(tree.search(5), nullptr);
+}
