@@ -70,6 +70,14 @@ private:
             else
                 cur = cur->_right;
         }
+        if (cur == node){
+            cur->_size--;
+        }
+    }
+
+    int _updateSize(RedBlackTreeNode<TreeItem> * node) {
+        if (node == nullptr) return 0;
+        return node->_size = _updateSize(node->_left) + _updateSize(node->_right) + 1;
     }
 public:
     RedBlackTree();
@@ -85,6 +93,10 @@ public:
     int height();
 
     RedBlackTreeNode<TreeItem> * select(int k);
+
+    void updateSize(){
+        _updateSize(_root);
+    }
 };
 
 template<typename TreeItem>
@@ -311,6 +323,7 @@ void RedBlackTree<TreeItem>::_rightRotate(RedBlackTreeNode<TreeItem> *node) {
 
 template<typename TreeItem>
 void RedBlackTree<TreeItem>::_print(RedBlackTreeNode<TreeItem> *node, std::vector<std::pair<TreeItem, TreeItem>> &events) {
+    std::cout <<"!" <<  node->value() << " " << node->_color << "\n";
     if (node->_left != nullptr){
         events.push_back({node->value(),node->_left->value()});
         _print(node->_left, events);
@@ -325,9 +338,15 @@ template<typename TreeItem>
 void RedBlackTree<TreeItem>::remove(RedBlackTreeNode<TreeItem> *z) {
     _fixSize(z);
     RedBlackTreeNode <TreeItem> *x, *y;
-    if (z->_left == nullptr && z->_right == nullptr){
+    /*if (z->_left == nullptr && z->_right == nullptr){
+        if (z->_parent != nullptr){
+            if (z->_parent->_left == z)
+                z->_parent->_left = nullptr;
+            else
+                z->_parent->_right = nullptr;
+        }
         z = nullptr;
-    }
+    }*/
     if (z == nullptr) return;
     if (z->_left == nullptr || z->_right == nullptr) {
         /* y has a NIL node as a child */
@@ -336,16 +355,16 @@ void RedBlackTree<TreeItem>::remove(RedBlackTreeNode<TreeItem> *z) {
         /* find tree successor with a NIL node as a child */
         y = z->_right;
         while (y->_left != nullptr) y = y->_left;
-    }
+    }// y == 6?
     /* x is y's only child */
     if (y->_left != nullptr)
         x = y->_left;
     else
-        x = y->_right;
+        x = y->_right;//x == null
     /* remove y from the parent chain */
     if (x != nullptr && y != nullptr)
         x->_parent = y->_parent;
-    if (y->_parent)
+    if (y->_parent != nullptr)
         if (y == y->_parent->_left)
             y->_parent->_left = x;
         else

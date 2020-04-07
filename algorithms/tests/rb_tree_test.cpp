@@ -34,17 +34,32 @@ TEST(RBTree, Remove){
     for (int i = 0 ; i < 20; ++i) {
         tree.insert(i);
     }
+    auto v = tree.print();
+    for (auto i : v) {
+        std::cout << i.first << " " << i.second << "\n";
+    }
+    std::cout << "end\n";
+    tree.remove(tree.search(4));
+    v = tree.print();
+    for (auto i : v) {
+        std::cout << i.first << " " << i.second << "\n";
+    }
+    std::cout << "end\n";
     tree.remove(tree.search(5));
     tree.remove(tree.search(6));
     tree.remove(tree.search(7));
     tree.remove(tree.search(8));
     tree.remove(tree.search(9));
-    for (int i = 0; i < 5; ++i){
+    tree.remove(tree.search(10));
+    tree.remove(tree.search(11));
+    tree.remove(tree.search(12));
+    tree.remove(tree.search(13));
+    for (int i = 0; i < 4; ++i){
         EXPECT_TRUE(tree.search(i) != nullptr);
     }
-    for (int i = 5; i < 10; ++i)
+    for (int i = 4; i < 14; ++i)
         EXPECT_EQ(tree.search(i), nullptr);
-    for (int i = 10; i < 20; ++i){
+    for (int i = 14; i < 20; ++i){
         EXPECT_TRUE(tree.search(i) != nullptr);
     }
 }
@@ -63,8 +78,9 @@ TEST(RBTree, size){
     tree.remove(tree.search(7));
     tree.remove(tree.search(8));
     tree.remove(tree.search(9));
-    /*for (int i = 6 ; i <= 15; ++i) {
+    tree.updateSize();
+    for (int i = 6 ; i <= 15; ++i) {
         EXPECT_TRUE(tree.select(i) != nullptr);
         EXPECT_EQ(tree.select(i)->value(), i + 4);
-    }*/
+    }
 }
