@@ -4,7 +4,6 @@
 
 #include <gtest/gtest.h>
 #include "../src/RedBlackTree.hpp"
-#include <iostream>
 #include <cmath>
 
 TEST(RBTree, CreationSearcing){
@@ -34,17 +33,7 @@ TEST(RBTree, Remove){
     for (int i = 0 ; i < 20; ++i) {
         tree.insert(i);
     }
-    auto v = tree.print();
-    for (auto i : v) {
-        std::cout << i.first << " " << i.second << "\n";
-    }
-    std::cout << "end\n";
     tree.remove(tree.search(4));
-    v = tree.print();
-    for (auto i : v) {
-        std::cout << i.first << " " << i.second << "\n";
-    }
-    std::cout << "end\n";
     tree.remove(tree.search(5));
     tree.remove(tree.search(6));
     tree.remove(tree.search(7));
@@ -64,7 +53,7 @@ TEST(RBTree, Remove){
     }
 }
 
-TEST(RBTree, size){
+TEST(RBTree, select1){
     RedBlackTree<int> tree;
     for (int i = 0 ; i < 20; ++i) {
         tree.insert(i);
@@ -78,9 +67,52 @@ TEST(RBTree, size){
     tree.remove(tree.search(7));
     tree.remove(tree.search(8));
     tree.remove(tree.search(9));
-    tree.updateSize();
-    for (int i = 6 ; i <= 15; ++i) {
+    tree.remove(tree.search(10));
+    tree.remove(tree.search(11));
+    tree.remove(tree.search(12));
+    tree.remove(tree.search(13));
+    for (int i = 6 ; i <= 11; ++i) {
         EXPECT_TRUE(tree.select(i) != nullptr);
-        EXPECT_EQ(tree.select(i)->value(), i + 4);
+        EXPECT_EQ(tree.select(i)->value(), i + 8);
     }
+}
+
+
+TEST(RBTree, select2){
+    RedBlackTree<int> tree;
+    for (int i = 0 ; i < 20; ++i)
+        tree.insert(i);
+    for (int i = 0; i < 10; ++i)
+        tree.remove(tree.search(i * 2));
+    for (int i = 0; i < 10; ++i)
+        EXPECT_EQ(tree.select(i + 1)->value(), 2 * i + 1);
+}
+
+TEST(RBTree, order1){
+    RedBlackTree<int> tree;
+    for (int i = 0 ; i < 20; ++i) {
+        tree.insert(i);
+    }
+    tree.remove(tree.search(5));
+    tree.remove(tree.search(6));
+    tree.remove(tree.search(7));
+    tree.remove(tree.search(8));
+    tree.remove(tree.search(9));
+    tree.remove(tree.search(10));
+    tree.remove(tree.search(11));
+    tree.remove(tree.search(12));
+    tree.remove(tree.search(13));
+    for (int i = 6 ; i <= 11; ++i) {
+        EXPECT_EQ(tree.order(tree.search(i + 8)), i);
+    }
+}
+
+TEST(RBTree, order2){
+    RedBlackTree<int> tree;
+    for (int i = 0 ; i < 20; ++i)
+        tree.insert(i);
+    for (int i = 0; i < 10; ++i)
+        tree.remove(tree.search(i * 2));
+    for (int i = 0; i < 10; ++i)
+        EXPECT_EQ(tree.order(tree.search(2 * i + 1)), i + 1);
 }

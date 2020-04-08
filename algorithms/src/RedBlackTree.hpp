@@ -9,7 +9,6 @@
 
 #include <string>
 #include <vector>
-#include <iostream>
 
 
 
@@ -58,27 +57,12 @@ private:
 
     RedBlackTreeNode<TreeItem> * _select(RedBlackTreeNode<TreeItem> * node, int k);
 
-    void _fixSize(RedBlackTreeNode<TreeItem> * node){
-        if (node == nullptr)
-            return;
-        RedBlackTreeNode<TreeItem> * cur = _root;
-        while (cur != nullptr && cur != node){
-            std::cout << cur->value() << " " << node->value() << "\n";
-            cur->_size--;
-            if (node->value() < cur->value())
-                cur = cur->_left;
-            else
-                cur = cur->_right;
-        }
-        if (cur == node){
-            cur->_size--;
-        }
-    }
+    void _fixSize(RedBlackTreeNode<TreeItem> * node);
 
-    int _updateSize(RedBlackTreeNode<TreeItem> * node) {
-        if (node == nullptr) return 0;
-        return node->_size = _updateSize(node->_left) + _updateSize(node->_right) + 1;
-    }
+    int _updateSize(RedBlackTreeNode<TreeItem> * node);
+
+    void _updateNode(RedBlackTreeNode<TreeItem> * node);
+
 public:
     RedBlackTree();
 
@@ -94,8 +78,22 @@ public:
 
     RedBlackTreeNode<TreeItem> * select(int k);
 
-    void updateSize(){
-        _updateSize(_root);
+    void updateSize();
+
+    int order(RedBlackTreeNode <TreeItem> * node){
+        int r = 1;
+        if (node->_left != nullptr)
+            r += node->_left->_size;
+        RedBlackTreeNode <TreeItem> * cur = node;
+        while (cur->_parent != nullptr){
+            if (cur->_parent->_right == cur){
+                r += 1;
+                if (cur->_parent->_left)
+                    r += cur->_parent->_left->_size;
+            }
+            cur = cur->_parent;
+        }
+        return r;
     }
 };
 
@@ -323,7 +321,6 @@ void RedBlackTree<TreeItem>::_rightRotate(RedBlackTreeNode<TreeItem> *node) {
 
 template<typename TreeItem>
 void RedBlackTree<TreeItem>::_print(RedBlackTreeNode<TreeItem> *node, std::vector<std::pair<TreeItem, TreeItem>> &events) {
-    std::cout <<"!" <<  node->value() << " " << node->_color << "\n";
     if (node->_left != nullptr){
         events.push_back({node->value(),node->_left->value()});
         _print(node->_left, events);
@@ -336,17 +333,8 @@ void RedBlackTree<TreeItem>::_print(RedBlackTreeNode<TreeItem> *node, std::vecto
 
 template<typename TreeItem>
 void RedBlackTree<TreeItem>::remove(RedBlackTreeNode<TreeItem> *z) {
-    _fixSize(z);
+    //_fixSize(z);
     RedBlackTreeNode <TreeItem> *x, *y;
-    /*if (z->_left == nullptr && z->_right == nullptr){
-        if (z->_parent != nullptr){
-            if (z->_parent->_left == z)
-                z->_parent->_left = nullptr;
-            else
-                z->_parent->_right = nullptr;
-        }
-        z = nullptr;
-    }*/
     if (z == nullptr) return;
     if (z->_left == nullptr || z->_right == nullptr) {
         /* y has a NIL node as a child */
@@ -356,13 +344,14 @@ void RedBlackTree<TreeItem>::remove(RedBlackTreeNode<TreeItem> *z) {
         y = z->_right;
         while (y->_left != nullptr) y = y->_left;
     }// y == 6?
+    _fixSize(y);
     /* x is y's only child */
     if (y->_left != nullptr)
         x = y->_left;
     else
         x = y->_right;//x == null
     /* remove y from the parent chain */
-    if (x != nullptr && y != nullptr)
+    if (x != nullptr)
         x->_parent = y->_parent;
     if (y->_parent != nullptr)
         if (y == y->_parent->_left)
@@ -402,7 +391,6 @@ template<typename TreeItem>
 RedBlackTreeNode<TreeItem> *RedBlackTree<TreeItem>::select(int k) {
     if (_root == nullptr || _root->_size < k)
         return nullptr;
-    std::cout << "Yeeee\n" << _root->_size << "\n";
     return _select(_root, k);
 }
 
@@ -411,12 +399,41 @@ RedBlackTreeNode<TreeItem> *RedBlackTree<TreeItem>::_select(RedBlackTreeNode<Tre
     int r = 1;
     if (node->_left != nullptr)
         r = node->_left->_size + 1;
-    std::cout << r << " " << k << '\n';
     if (r == k)
         return node;
     if (k < r)
         return _select(node->_left, k);
     return _select(node->_right, k - r);
+}
+
+template<typename TreeItem>
+void RedBlackTree<TreeItem>::updateSize() {
+    _updateSize(_root);
+}
+
+template<typename TreeItem>
+void RedBlackTree<TreeItem>::_fixSize(RedBlackTreeNode<TreeItem> *node) {
+    if (node == nullptr)
+        return;
+    node->_size--;
+    _fixSize(node->_parent);
+}
+
+template<typename TreeItem>
+int RedBlackTree<TreeItem>::_updateSize(RedBlackTreeNode<TreeItem> *node) {
+    if (node == nullptr) return 0;
+    return node->_size = _updateSize(node->_left) + _updateSize(node->_right) + 1;
+}
+
+template<typename TreeItem>
+void RedBlackTree<TreeItem>::_updateNode(RedBlackTreeNode<TreeItem> *node) {
+    if (node == nullptr)
+        return;
+    node->_size = 1;
+    if (node->_left)
+        node->_size += node->_left->_size;
+    if (node->_right)
+        node->_size += node->_right->_size;
 }
 
 
