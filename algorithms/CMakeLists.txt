@@ -6,5 +6,5 @@ add_subdirectory(lib/googletest-master)
 include_directories(lib/googletest-master/googletest/include)
 include_directories(lib/googletest-master/googlemock/include)
 
-add_executable(algorithms src/BinaryTree.hpp src/RedBlackTree.cpp src/RedBlackTree.hpp tests/test.hpp main.cpp tests/rb_tree_test.cpp)
+add_executable(algorithms src/BinaryTree.hpp src/RedBlackTree.hpp tests/test.hpp main.cpp tests/rb_tree_test.cpp src/SplayTree.hpp tests/splay_tree_test.cpp)
 target_link_libraries(algorithms gtest gtest_main)
