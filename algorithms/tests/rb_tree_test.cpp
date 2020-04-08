@@ -125,15 +125,12 @@ TEST(RBTree, CompareWithSTL){
     std::set <int> s;
     for (int i = 0; i < 10000; ++i){
         int value = rand() % 10000000;
-        if (s.count(value)) {
+        if (!s.count(value)) {
             tree.insert(value);
             s.insert(value);
         }
     }
-    int k = 0;
     for (auto it = s.begin(); it != s.end(); ++it){
-        ++k;
         EXPECT_TRUE(tree.search(*it) != nullptr);
-        EXPECT_EQ(tree.order(tree.search(*it)), k);
     }
 }
