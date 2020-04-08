@@ -5,6 +5,8 @@
 #include <gtest/gtest.h>
 #include "../src/RedBlackTree.hpp"
 #include <cmath>
+#include <set>
+#include <random>
 
 TEST(RBTree, CreationSearcing){
     //RedBlackTreeNode<int> * node;
@@ -115,4 +117,23 @@ TEST(RBTree, order2){
         tree.remove(tree.search(i * 2));
     for (int i = 0; i < 10; ++i)
         EXPECT_EQ(tree.order(tree.search(2 * i + 1)), i + 1);
+}
+
+TEST(RBTree, CompareWithSTL){
+    srand(time(0));
+    RedBlackTree<int> tree;
+    std::set <int> s;
+    for (int i = 0; i < 10000; ++i){
+        int value = rand() % 10000000;
+        if (s.count(value)) {
+            tree.insert(value);
+            s.insert(value);
+        }
+    }
+    int k = 0;
+    for (auto it = s.begin(); it != s.end(); ++it){
+        ++k;
+        EXPECT_TRUE(tree.search(*it) != nullptr);
+        EXPECT_EQ(tree.order(tree.search(*it)), k);
+    }
 }
