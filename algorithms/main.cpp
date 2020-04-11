@@ -3,8 +3,9 @@
 //
 #include "tests/test.hpp"
 #include <set>
+
 int main(){
-    testAll();
+    //testAll();
     std::set<int> s;
 
     return 0;
