@@ -188,9 +188,9 @@ void BPlusTree<T>::_removeInNode(shared_ptr<Node<T> > node, int key) {
                 ++node->_key_num;
                 --left_sibling->_key_num;
 
-                node->_key.insert(node->_key.begin(), node->_children[0]->key[0]);
+                node->_key.insert(node->_key.begin(), node->_children[0]->_key[0]);
                 node->_children.insert(node->_children.begin(), left_sibling->_children[left_sibling->_key_num + 1]);
-                node->_children[0]->parent = node;
+                node->_children[0]->_parent = node;
 
                 left_sibling->_key.pop_back();
                 left_sibling->_children.pop_back();
@@ -202,9 +202,9 @@ void BPlusTree<T>::_removeInNode(shared_ptr<Node<T> > node, int key) {
                 ++node->_key_num;
                 --right_sibling->_key_num;
 
-                node->_key.push_back(right_sibling->_children[0]->key[0]);
+                node->_key.push_back(right_sibling->_children[0]->_key[0]);
                 node->_children.push_back(right_sibling->_children[0]);
-                node->_children[node->_key_num]->parent = node;
+                node->_children[node->_key_num]->_parent = node;
 
                 right_sibling->_key.erase(right_sibling->_key.begin());
                 right_sibling->_children.erase(right_sibling->_children.begin());
@@ -219,7 +219,7 @@ void BPlusTree<T>::_removeInNode(shared_ptr<Node<T> > node, int key) {
                 left_sibling->_key_num += node->_key_num + 1;
 
                 for (int i = 0; i <= left_sibling->_key_num; ++i) {
-                    left_sibling->_children[i]->parent = left_sibling;
+                    left_sibling->_children[i]->_parent = left_sibling;
                 }
 
                 _removeInNode(node->_parent, node->_parent->_key[pos1 - 1]);
@@ -232,7 +232,7 @@ void BPlusTree<T>::_removeInNode(shared_ptr<Node<T> > node, int key) {
                 node->_key_num += right_sibling->_key_num + 1;
 
                 for (int i = 0; i <= node->_key_num; ++i) {
-                    node->_children[i]->parent = node;
+                    node->_children[i]->_parent = node;
                 }
 
                 _removeInNode(node->_parent, node->_parent->_key[pos1]);
