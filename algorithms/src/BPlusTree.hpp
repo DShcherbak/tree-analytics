@@ -13,15 +13,15 @@ using std::vector;
 #define ALGORITHMS_BPLUS_TREE_HPP
 
 template<typename T>
-class Node {
+class BPlusNode {
 public:
     bool _leaf{false};
     int _key_num{0};
     std::vector<int> _key;
-    shared_ptr<Node<T> > _parent;
-    shared_ptr<Node<T> > _left_sibling;
-    shared_ptr<Node<T> > _right_sibling;
-    vector<shared_ptr<Node<T> > > _children;
+    shared_ptr<BPlusNode<T> > _parent;
+    shared_ptr<BPlusNode<T> > _left_sibling;
+    shared_ptr<BPlusNode<T> > _right_sibling;
+    vector<shared_ptr<BPlusNode<T> > > _children;
     vector<shared_ptr<T> > _info;
 };
 
@@ -29,7 +29,7 @@ template<typename T>
 class BPlusTree {
 public:
     explicit BPlusTree(int t) : _t{t} {
-        _root = std::make_shared<Node<T> >();
+        _root = std::make_shared<BPlusNode<T> >();
         _root->_leaf = true;
     }
 
@@ -41,17 +41,17 @@ public:
 
 private:
 
-    void _removeInNode(shared_ptr<Node<T> > node, int key);
+    void _removeInNode(shared_ptr<BPlusNode<T> > node, int key);
 
-    void _split(shared_ptr<Node<T> > node);
+    void _split(shared_ptr<BPlusNode<T> > node);
 
-    shared_ptr<Node<T> > _findLeaf(int key);
+    shared_ptr<BPlusNode<T> > _findLeaf(int key);
 
-    int _getMin(shared_ptr<Node<T> > node);
+    int _getMin(shared_ptr<BPlusNode<T> > node);
 
-    void _update(shared_ptr<Node<T> > node);
+    void _update(shared_ptr<BPlusNode<T> > node);
 
-    shared_ptr<Node<T> > _root;
+    shared_ptr<BPlusNode<T> > _root;
     int _t;
 };
 
