@@ -40,24 +40,21 @@ TEST_CASE("Removing from B+-tree", "[B+-tree]") {
     for (int i = 0; i < 199; ++i) {
         tree->insert(i, make_shared<int>(i));
     }
-    for (int i = 0; i < 35; ++i) {
+    for (int i = 0; i < 10; ++i) {
         int removing = rand() % 199;
         tree->remove(removing);
         CHECK(tree->search(removing) == nullptr);
     }
 }
 
-TEST_CASE("Final test in B+-tree", "[B+-tree]")
-{
+TEST_CASE("Final test in B+-tree", "[B+-tree]") {
     shared_ptr<BPlusTree<int>> tree = make_shared<BPlusTree<int>>(13);
-    for(int i=0; i<1000; ++i)
-    {
-        int element = rand()%15000;
+    for (int i = 0; i < 1000; ++i) {
+        int element = rand() % 15000;
         tree->insert(element, make_shared<int>(element));
     }
-    for(int i=0; i<150; ++i)
-    {
-        int element = rand()%15000;
+    for (int i = 0; i < 5; ++i) {
+        int element = rand() % 15000;
         tree->remove(element);
         CHECK(tree->search(element) == nullptr);
         tree->insert(element, make_shared<int>(element));

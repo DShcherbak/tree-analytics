@@ -17,7 +17,7 @@ class BinomialNode {
 public:
     BinomialNode() = default;
 
-    BinomialNode(T value) : _key{value} {}
+    explicit BinomialNode(T value) : _key{value} {}
 
     T _key;
     shared_ptr<BinomialNode<T>> _child;
@@ -43,10 +43,10 @@ public:
 
     void remove(shared_ptr<BinomialNode<T>> node);
 
-private:
-    void sort(); // sort by degrees of roots in increasing order
+    void _merge();
 
-    void merge();
+    void _sort(); // sort by degrees of roots in increasing order
+
 };
 
 #include "BinomialHeap.tpp"

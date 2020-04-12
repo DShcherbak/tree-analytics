@@ -5,15 +5,15 @@
 #include "BinomialHeap.hpp"
 
 template<typename T>
-void BinomialHeap<T>::sort() // bubble sort
+void BinomialHeap<T>::_sort() // bubble sort
 {
     if (this->_head == nullptr) return;
-    auto *cur = &(this->_head);
+    auto cur = &(this->_head);
     while ((*cur)->_sibling != nullptr) {
         auto cur1 = cur;
         while ((*cur1)->_sibling != nullptr) {
             if ((*cur1)->_sibling->_degree < (*cur1)->_degree) {
-                BinomialNode<T> *tmp = *cur1;
+                shared_ptr<BinomialNode<T>> tmp = *cur1;
                 (*cur1) = (*cur1)->_sibling;
                 tmp->_sibling = (*cur1)->_sibling;
                 (*cur1)->_sibling = tmp;
@@ -25,7 +25,7 @@ void BinomialHeap<T>::sort() // bubble sort
 }
 
 template<typename T>
-void BinomialHeap<T>::merge() // merging of roots with equal degrees
+void BinomialHeap<T>::_merge() // merging of roots with equal degrees
 {
     auto curH = &(this->_head);
     while ((*curH)->_sibling != nullptr) {
@@ -51,42 +51,42 @@ void BinomialHeap<T>::merge() // merging of roots with equal degrees
 }
 
 template<typename T>
-shared_ptr <BinomialHeap<T>> merge(shared_ptr <BinomialHeap<T>> H1, shared_ptr <BinomialHeap<T>> H2) // merging 2 heaps
+shared_ptr <BinomialHeap<T>> merge(BinomialHeap<T>& H1, BinomialHeap<T>& H2) // merging 2 heaps
 {                                                            //and return pointer on new heap which is result of merging
-    if (H1 == nullptr) return H2;
-    if (H2 == nullptr) return H1;
+//    if (H1 == nullptr) return H2;
+//    if (H2 == nullptr) return H1;
 
     shared_ptr<BinomialHeap<T>> answer = make_shared<BinomialHeap<T>>();
     auto curH = &(answer->_head);
-    auto curH1 = H1->head;
-    auto curH2 = H2->head;
+    auto curH1 = H1._head;
+    auto curH2 = H2._head;
     while (curH1 != nullptr && curH2 != nullptr) {
-        if (curH1->degree < curH2->degree) {
+        if (curH1->_degree < curH2->_degree) {
             (*curH) = curH1;
             curH = &((*curH)->_sibling);
-            curH1 = curH1->sibling;
+            curH1 = curH1->_sibling;
         } else {
             (*curH) = curH2;
             curH = &((*curH)->_sibling);
-            curH2 = curH2->sibling;
+            curH2 = curH2->_sibling;
         }
     }
     if (curH1 == nullptr) {
         while (curH2 != nullptr) {
             *(curH) = curH2;
             curH = &((*curH)->_sibling);
-            curH2 = curH2->sibling;
+            curH2 = curH2->_sibling;
         }
     } else {
         while (curH1 != nullptr) {
             *(curH) = curH1;
             curH = &((*curH)->_sibling);
-            curH1 = curH1->sibling;
+            curH1 = curH1->_sibling;
         }
     }
     curH = &(answer->_head);
-    merge(answer);
-    answer->sort();
+    answer->_merge();
+    answer->_sort();
     return answer;
 }
 
@@ -98,7 +98,7 @@ void BinomialHeap<T>::insert(T value) //creating new heap with only root with ke
     else {
         new_node->_sibling = _head;
         _head = new_node;
-        this->merge();
+        this->_merge();
     }
 }
 
@@ -151,7 +151,7 @@ shared_ptr <BinomialNode<T>> BinomialHeap<T>::extractMin() {
         cur = cur->_sibling;
     }
 
-    auto merged_heap = merge(this, new_heap); // merging this heap and new one
+    auto merged_heap = merge(*this, *new_heap); // merging this heap and new one
     this->_head = merged_heap->_head;
     return answer;
 }
@@ -172,5 +172,5 @@ template<typename T>
 void BinomialHeap<T>::remove(shared_ptr <BinomialNode<T>> node) {
     this->decreaseKey(node, T()); // set the key of removing node to min possible
     this->extractMin();
-    this->sort();
+    this->_sort();
 }
