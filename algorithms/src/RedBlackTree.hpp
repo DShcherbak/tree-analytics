@@ -6,6 +6,7 @@
 #define ALGORITHMS_REDBLACKTREE_HPP
 
 #include "BinaryTree.hpp"
+#include "Tree.hpp"
 
 #include <string>
 #include <vector>
@@ -19,7 +20,7 @@ template <typename TreeItem>
 class RedBlackTree;
 
 template <typename TreeItem>
-class RedBlackTreeNode{
+class RedBlackTreeNode:Node<TreeItem>{
 private:
     TreeItem _value;
     RedBlackTreeNode<TreeItem> * _left;
@@ -37,6 +38,8 @@ public:
     TreeItem value();
 
     friend class RedBlackTree<TreeItem>;
+
+    Node<TreeItem> * next();
 };
 
 template <typename TreeItem>
@@ -80,20 +83,19 @@ public:
 
     void updateSize();
 
-    int order(RedBlackTreeNode <TreeItem> * node){
-        int r = 1;
-        if (node->_left != nullptr)
-            r += node->_left->_size;
-        RedBlackTreeNode <TreeItem> * cur = node;
-        while (cur->_parent != nullptr){
-            if (cur->_parent->_right == cur){
-                r += 1;
-                if (cur->_parent->_left)
-                    r += cur->_parent->_left->_size;
-            }
-            cur = cur->_parent;
-        }
-        return r;
+    int order(RedBlackTreeNode <TreeItem> * node);
+
+    TreeIterator<TreeItem> begin(){
+        if (_root == nullptr)
+            return TreeIterator<TreeItem>(nullptr);
+        RedBlackTreeNode<TreeItem> * cur = _root;
+        while (cur->_left != nullptr)
+            cur = cur->_left;
+        return TreeIterator<TreeItem>(cur);
+    }
+
+    TreeIterator<TreeItem> end(){
+        return nullptr;
     }
 };
 
@@ -321,6 +323,8 @@ void RedBlackTree<TreeItem>::_rightRotate(RedBlackTreeNode<TreeItem> *node) {
 
 template<typename TreeItem>
 void RedBlackTree<TreeItem>::_print(RedBlackTreeNode<TreeItem> *node, std::vector<std::pair<TreeItem, TreeItem>> &events) {
+    if (node == nullptr)
+        return;
     if (node->_left != nullptr){
         events.push_back({node->value(),node->_left->value()});
         _print(node->_left, events);
@@ -436,6 +440,23 @@ void RedBlackTree<TreeItem>::_updateNode(RedBlackTreeNode<TreeItem> *node) {
         node->_size += node->_right->_size;
 }
 
+template<typename TreeItem>
+int RedBlackTree<TreeItem>::order(RedBlackTreeNode<TreeItem> *node) {
+    int r = 1;
+    if (node->_left != nullptr)
+        r += node->_left->_size;
+    RedBlackTreeNode <TreeItem> * cur = node;
+    while (cur->_parent != nullptr){
+        if (cur->_parent->_right == cur){
+            r += 1;
+            if (cur->_parent->_left)
+                r += cur->_parent->_left->_size;
+        }
+        cur = cur->_parent;
+    }
+    return r;
+}
+
 
 template<typename TreeItem>
 RedBlackTreeNode<TreeItem>::RedBlackTreeNode(TreeItem item, RedBlackTreeNode<TreeItem> *left,
@@ -452,6 +473,16 @@ RedBlackTreeNode<TreeItem>::RedBlackTreeNode(TreeItem item, RedBlackTreeNode<Tre
 template<typename TreeItem>
 TreeItem RedBlackTreeNode<TreeItem>::value() {
     return _value;
+}
+
+template<typename TreeItem>
+Node<TreeItem> *RedBlackTreeNode<TreeItem>::next() {
+    if (_right != nullptr)
+        return _right;
+    RedBlackTreeNode<TreeItem> * cur = this;
+    while (cur->_parent != nullptr && cur->_parent->_right == cur)
+        cur = cur->_parent;
+    return cur->_parent;
 }
 
 
