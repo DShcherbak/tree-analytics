@@ -6,8 +6,8 @@
 
 
 template<typename T>
-shared_ptr<Node<T> > BPlusTree<T>::_findLeaf(int key) { // according to the principle of binary search tree
-    shared_ptr<Node<T> > cur = this->_root;
+shared_ptr<BPlusNode<T> > BPlusTree<T>::_findLeaf(int key) { // according to the principle of binary search tree
+    shared_ptr<BPlusNode<T> > cur = this->_root;
     while (!cur->_leaf) {
         for (int i = 0; i <= cur->_key_num; ++i) {
             if (i == cur->_key_num || key < cur->_key[i]) {
@@ -21,7 +21,7 @@ shared_ptr<Node<T> > BPlusTree<T>::_findLeaf(int key) { // according to the prin
 
 template<typename T>
 shared_ptr<T> BPlusTree<T>::search(int key) {
-    shared_ptr<Node<T> > leaf = _findLeaf(key);
+    shared_ptr<BPlusNode<T> > leaf = _findLeaf(key);
     for (int i = 0; i < leaf->_key_num; ++i) {
         if (leaf->_key[i] == key) return leaf->_info[i];
     }
@@ -30,7 +30,7 @@ shared_ptr<T> BPlusTree<T>::search(int key) {
 
 template<typename T>
 bool BPlusTree<T>::insert(int key, shared_ptr<T> value) {
-    shared_ptr<Node<T> > leaf = this->_findLeaf(key);
+    shared_ptr<BPlusNode<T> > leaf = this->_findLeaf(key);
     if (std::find(leaf->_key.begin(), leaf->_key.end(), key) <
         leaf->_key.end()) // if we already have information with the key,
         // then we can't insert
@@ -52,8 +52,8 @@ bool BPlusTree<T>::insert(int key, shared_ptr<T> value) {
 }
 
 template<typename T>
-void BPlusTree<T>::_split(shared_ptr<Node<T> > node) { // split node to 2 new nodes
-    shared_ptr<Node<T> > new_node = std::make_shared<Node<T> >();
+void BPlusTree<T>::_split(shared_ptr<BPlusNode<T> > node) { // split node to 2 new nodes
+    shared_ptr<BPlusNode<T> > new_node = std::make_shared<BPlusNode<T> >();
 
     new_node->_right_sibling = node->_right_sibling;
     if (node->_right_sibling) node->_right_sibling->_left_sibling = new_node;
@@ -92,7 +92,7 @@ void BPlusTree<T>::_split(shared_ptr<Node<T> > node) { // split node to 2 new no
     if (node->_leaf) node->_info.resize(node->_key_num);
 
     if (node == this->_root) {
-        this->_root = std::make_shared<Node<T> >();
+        this->_root = std::make_shared<BPlusNode<T> >();
         this->_root->_key.push_back(mid_key);
         this->_root->_children.push_back(node);
         this->_root->_children.push_back(new_node);
@@ -101,7 +101,7 @@ void BPlusTree<T>::_split(shared_ptr<Node<T> > node) { // split node to 2 new no
         new_node->_parent = this->_root;
     } else {
         new_node->_parent = node->_parent;
-        shared_ptr<Node<T> > parent = node->_parent;
+        shared_ptr<BPlusNode<T> > parent = node->_parent;
 
         int pos = 0;
         while (pos < parent->_key_num && parent->_key[pos] < mid_key)
@@ -124,7 +124,7 @@ void BPlusTree<T>::_split(shared_ptr<Node<T> > node) { // split node to 2 new no
 
 template<typename T>
 bool BPlusTree<T>::remove(int key) {
-    shared_ptr<Node<T> > leaf = _findLeaf(key);
+    shared_ptr<BPlusNode<T> > leaf = _findLeaf(key);
     if (std::find(leaf->_key.begin(), leaf->_key.end(), key) ==
         leaf->_key.end()) // if found leaf doesn't have the key, we have nothing to delete
         return false;
@@ -134,7 +134,7 @@ bool BPlusTree<T>::remove(int key) {
 }
 
 template<typename T>
-int BPlusTree<T>::_getMin(shared_ptr<Node<T> > node) {
+int BPlusTree<T>::_getMin(shared_ptr<BPlusNode<T> > node) {
     while (!node->_leaf) {
         node = node->_children[0];
     }
@@ -142,7 +142,7 @@ int BPlusTree<T>::_getMin(shared_ptr<Node<T> > node) {
 }
 
 template<typename T>
-void BPlusTree<T>::_update(shared_ptr<Node<T> > node) // update keys in parent nodes
+void BPlusTree<T>::_update(shared_ptr<BPlusNode<T> > node) // update keys in parent nodes
 {
     while (node != nullptr) {
         for (int i = 0; i < node->_key_num; ++i) {
@@ -153,7 +153,7 @@ void BPlusTree<T>::_update(shared_ptr<Node<T> > node) // update keys in parent n
 }
 
 template<typename T>
-void BPlusTree<T>::_removeInNode(shared_ptr<Node<T> > node, int key) {
+void BPlusTree<T>::_removeInNode(shared_ptr<BPlusNode<T> > node, int key) {
     int pos = 0;
     while (pos < node->_key_num && node->_key[pos] < key) // find the position of deleting key
         ++pos;
@@ -165,7 +165,7 @@ void BPlusTree<T>::_removeInNode(shared_ptr<Node<T> > node, int key) {
 
     if (node == _root) { // then reduce height of the tree
         if (node->_key_num == 0) {
-            shared_ptr<Node<T> > child = _root->_children[0];
+            shared_ptr<BPlusNode<T> > child = _root->_children[0];
             _root = child;
             _root->_parent = nullptr;
         }
@@ -176,8 +176,8 @@ void BPlusTree<T>::_removeInNode(shared_ptr<Node<T> > node, int key) {
                node->_parent->_key[pos1] <= node->_key[0]) // find the position of node in parents children
             ++pos1;
 
-        shared_ptr<Node<T> > left_sibling;
-        shared_ptr<Node<T> > right_sibling;
+        shared_ptr<BPlusNode<T> > left_sibling;
+        shared_ptr<BPlusNode<T> > right_sibling;
 
         if (pos1 > 0) left_sibling = node->_parent->_children[pos1 - 1];
         if (pos1 < node->_parent->_key_num) right_sibling = node->_parent->_children[pos1 + 1];
@@ -188,9 +188,9 @@ void BPlusTree<T>::_removeInNode(shared_ptr<Node<T> > node, int key) {
                 ++node->_key_num;
                 --left_sibling->_key_num;
 
-                node->_key.insert(node->_key.begin(), node->_children[0]->key[0]);
+                node->_key.insert(node->_key.begin(), node->_children[0]->_key[0]);
                 node->_children.insert(node->_children.begin(), left_sibling->_children[left_sibling->_key_num + 1]);
-                node->_children[0]->parent = node;
+                node->_children[0]->_parent = node;
 
                 left_sibling->_key.pop_back();
                 left_sibling->_children.pop_back();
@@ -202,9 +202,9 @@ void BPlusTree<T>::_removeInNode(shared_ptr<Node<T> > node, int key) {
                 ++node->_key_num;
                 --right_sibling->_key_num;
 
-                node->_key.push_back(right_sibling->_children[0]->key[0]);
+                node->_key.push_back(right_sibling->_children[0]->_key[0]);
                 node->_children.push_back(right_sibling->_children[0]);
-                node->_children[node->_key_num]->parent = node;
+                node->_children[node->_key_num]->_parent = node;
 
                 right_sibling->_key.erase(right_sibling->_key.begin());
                 right_sibling->_children.erase(right_sibling->_children.begin());
@@ -219,7 +219,7 @@ void BPlusTree<T>::_removeInNode(shared_ptr<Node<T> > node, int key) {
                 left_sibling->_key_num += node->_key_num + 1;
 
                 for (int i = 0; i <= left_sibling->_key_num; ++i) {
-                    left_sibling->_children[i]->parent = left_sibling;
+                    left_sibling->_children[i]->_parent = left_sibling;
                 }
 
                 _removeInNode(node->_parent, node->_parent->_key[pos1 - 1]);
@@ -232,7 +232,7 @@ void BPlusTree<T>::_removeInNode(shared_ptr<Node<T> > node, int key) {
                 node->_key_num += right_sibling->_key_num + 1;
 
                 for (int i = 0; i <= node->_key_num; ++i) {
-                    node->_children[i]->parent = node;
+                    node->_children[i]->_parent = node;
                 }
 
                 _removeInNode(node->_parent, node->_parent->_key[pos1]);
@@ -300,3 +300,7 @@ void BPlusTree<T>::_removeInNode(shared_ptr<Node<T> > node, int key) {
         }
     }
 }
+
+//template <class Item>
+//BPlusNodeIterator<Item>::BPlusNodeIterator(const shared_ptr<Item> aNode): _node{aNode}, _current(0){}
+
