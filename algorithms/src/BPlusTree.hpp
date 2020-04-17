@@ -55,6 +55,39 @@ private:
     int _t;
 };
 
+template<class Item>
+class Iterator {
+public:
+    virtual void First() = 0;
+
+    virtual void Next() = 0;
+
+    virtual bool IsDone() const = 0;
+
+    virtual Item CurrentItem() const = 0;
+
+protected:
+    Iterator();
+};
+
+template<class Item>
+class BPlusNodeIterator : public Iterator<Item> {
+public:
+    BPlusNodeIterator(shared_ptr<BPlusNode<Item>> aNode);
+
+    virtual void First();
+
+    virtual void Next();
+
+    virtual bool IsDone() const;
+
+    virtual Item CurrentItem() const;
+
+private:
+    shared_ptr<BPlusNode<Item>> _node;
+    long _current;
+};
+
 #include "BPlusTree.tpp"
 
 #endif //ALGORITHMS_BPLUS_TREE_HPP
