@@ -6,12 +6,13 @@
 #define ALGORITHMS_SPLAYTREE_HPP
 
 #include <vector>
+#include "Tree.hpp"
 
 template <typename TreeItem>
 class SplayTree;
 
 template <typename TreeItem>
-class SplayTreeNode{
+class SplayTreeNode: public Node<TreeItem>{
 private:
     TreeItem _value;
     SplayTreeNode<TreeItem> * _left;
@@ -26,11 +27,13 @@ public:
 
     TreeItem value();
 
+    Node<TreeItem> * next();
+
     friend class SplayTree<TreeItem>;
 };
 
 template <typename TreeItem>
-class SplayTree {
+class SplayTree: public Tree<TreeItem> {
 private:
     SplayTreeNode <TreeItem> * _root;
 
@@ -38,111 +41,21 @@ private:
 
     int _height(SplayTreeNode<TreeItem> * node);
 
-    void _rotate(SplayTreeNode<TreeItem> * node){
-        if (node != nullptr && node->_parent != nullptr) {
-            if (node->_parent->_left == node) {
-                SplayTreeNode<TreeItem> *parent = node->_parent;
-                //SplayTreeNode<TreeItem> * left = node->left;
-                SplayTreeNode<TreeItem> *middle = node->_right;
-                SplayTreeNode<TreeItem> *right = node->_parent->_right;
-                SplayTreeNode<TreeItem> *grandparent = node->_parent->_parent;
-                node->_right = parent;
-                node->_parent = grandparent;
-                if (grandparent != nullptr) {
-                    if (grandparent->_left == parent)
-                        grandparent->_left = node;
-                    else
-                        grandparent->_right = node;
-                }
-                parent->_parent = node;
-                parent->_left = middle;
-                if (middle != nullptr)
-                    middle->_parent = parent;
-            }
-            else {
-                SplayTreeNode<TreeItem> *parent = node->_parent;
-                SplayTreeNode<TreeItem> * left = parent->_left;
-                SplayTreeNode<TreeItem> *middle = node->_left;
-                SplayTreeNode<TreeItem> *right = node->_right;
-                SplayTreeNode<TreeItem> *grandparent = node->_parent->_parent;
-                node->_left = parent;
-                node->_parent = grandparent;
-                if (grandparent != nullptr) {
-                    if (grandparent->_left == parent)
-                        grandparent->_left = node;
-                    else
-                        grandparent->_right = node;
-                }
-                parent->_parent = node;
-                parent->_right = middle;
-                if (middle != nullptr)
-                    middle->_parent = parent;
-            }
-        }
-    }
+    void _rotate(SplayTreeNode<TreeItem> * node);
 
-    SplayTreeNode<TreeItem> * _splay(SplayTreeNode<TreeItem> * node){
-        if (node == nullptr || node->_parent == nullptr)
-            return node;
-        SplayTreeNode<TreeItem> * parent = node->_parent;
-        SplayTreeNode<TreeItem> * grandparent = parent->_parent;
-        if (grandparent == nullptr){
-            _rotate(node);
-            return node;
-        }
-        bool zigzig = (grandparent->_left == parent) == (parent->_left == node);
-        if (zigzig){
-            _rotate(parent);
-            _rotate(node);
-        }
-        else  {
-            _rotate(node);
-            _rotate(node);
-        }
-        return _splay(node);
-    }
+    SplayTreeNode<TreeItem> * _splay(SplayTreeNode<TreeItem> * node);
 
-    SplayTreeNode<TreeItem> * _search(SplayTreeNode<TreeItem> * node, TreeItem item){
-        if (node == nullptr)
-            return nullptr;
-        if (item == node->value())
-            return _splay(node);
-        if (item < node->value() && node->_left != nullptr)
-            return _search(node->_left, item);
-        if (item > node->value() && node->_right != nullptr)
-            return _search(node->_right, item);
-        return _splay(node);
-    }
+    SplayTreeNode<TreeItem> * _search(SplayTreeNode<TreeItem> * node, TreeItem item);
 
-    std::pair<SplayTreeNode<TreeItem> * , SplayTreeNode<TreeItem> * > _split(TreeItem key){
-        if (_root == nullptr)
-            return {nullptr, nullptr};
-        SplayTreeNode<TreeItem> * temp = _search(_root, key);
-        if (temp->value() == key)
-            return {temp->_left, temp->_right};
-        if (temp->value() < key) {
-            SplayTreeNode<TreeItem> * right = temp->_right;
-            temp->_right = nullptr;
-            return {temp, right};
-        }
-        SplayTreeNode<TreeItem> * left = temp->_left;
-        temp->_left = nullptr;
-        return {left, temp};
-    }
+    std::pair<SplayTreeNode<TreeItem> * , SplayTreeNode<TreeItem> * > _split(TreeItem key);
 
-    SplayTreeNode <TreeItem> * _merge(SplayTreeNode<TreeItem> * first, SplayTreeNode<TreeItem> * second){
-        if (first == nullptr)
-            return second;
-        if (second == nullptr)
-            return first;
-        TreeItem item = first->value();
-        second = _search(second, item);
-        first->_parent = second;
-        second->_left = first;
-        return second;
-    }
+    SplayTreeNode <TreeItem> * _merge(SplayTreeNode<TreeItem> * first, SplayTreeNode<TreeItem> * second);
 
 public:
+    TreeIterator<TreeItem> begin();
+
+    TreeIterator<TreeItem> end();
+
     explicit SplayTree(SplayTreeNode <TreeItem> * root = nullptr);
 
     void insert(TreeItem item);
@@ -201,6 +114,16 @@ TreeItem SplayTreeNode<TreeItem>::value() {
 }
 
 template<typename TreeItem>
+Node<TreeItem> *SplayTreeNode<TreeItem>::next() {
+    if (_right != nullptr)
+        return _right;
+    SplayTreeNode<TreeItem> * cur = this;
+    while (cur->_parent != nullptr && cur->_parent->_right == cur)
+        cur = cur->_parent;
+    return cur->_parent;
+}
+
+template<typename TreeItem>
 std::vector<std::pair<TreeItem, TreeItem>> SplayTree<TreeItem>::print() {
     std::vector<std::pair<TreeItem, TreeItem>> events;
     _print(_root, events);
@@ -239,6 +162,130 @@ void SplayTree<TreeItem>::remove(SplayTreeNode<TreeItem> * z) {
     if (right != nullptr)
         right->_parent = nullptr;
     _root = _merge(left, right);
+}
+
+template<typename TreeItem>
+SplayTreeNode<TreeItem> *SplayTree<TreeItem>::_merge(SplayTreeNode<TreeItem> *first, SplayTreeNode<TreeItem> *second) {
+    if (first == nullptr)
+        return second;
+    if (second == nullptr)
+        return first;
+    TreeItem item = first->value();
+    second = _search(second, item);
+    first->_parent = second;
+    second->_left = first;
+    return second;
+}
+
+template<typename TreeItem>
+void SplayTree<TreeItem>::_rotate(SplayTreeNode<TreeItem> *node) {
+    if (node != nullptr && node->_parent != nullptr) {
+        if (node->_parent->_left == node) {
+            SplayTreeNode<TreeItem> *parent = node->_parent;
+            //SplayTreeNode<TreeItem> * left = node->left;
+            SplayTreeNode<TreeItem> *middle = node->_right;
+            SplayTreeNode<TreeItem> *right = node->_parent->_right;
+            SplayTreeNode<TreeItem> *grandparent = node->_parent->_parent;
+            node->_right = parent;
+            node->_parent = grandparent;
+            if (grandparent != nullptr) {
+                if (grandparent->_left == parent)
+                    grandparent->_left = node;
+                else
+                    grandparent->_right = node;
+            }
+            parent->_parent = node;
+            parent->_left = middle;
+            if (middle != nullptr)
+                middle->_parent = parent;
+        }
+        else {
+            SplayTreeNode<TreeItem> *parent = node->_parent;
+            SplayTreeNode<TreeItem> * left = parent->_left;
+            SplayTreeNode<TreeItem> *middle = node->_left;
+            SplayTreeNode<TreeItem> *right = node->_right;
+            SplayTreeNode<TreeItem> *grandparent = node->_parent->_parent;
+            node->_left = parent;
+            node->_parent = grandparent;
+            if (grandparent != nullptr) {
+                if (grandparent->_left == parent)
+                    grandparent->_left = node;
+                else
+                    grandparent->_right = node;
+            }
+            parent->_parent = node;
+            parent->_right = middle;
+            if (middle != nullptr)
+                middle->_parent = parent;
+        }
+    }
+}
+
+template<typename TreeItem>
+SplayTreeNode<TreeItem> *SplayTree<TreeItem>::_splay(SplayTreeNode<TreeItem> *node) {
+    if (node == nullptr || node->_parent == nullptr)
+        return node;
+    SplayTreeNode<TreeItem> * parent = node->_parent;
+    SplayTreeNode<TreeItem> * grandparent = parent->_parent;
+    if (grandparent == nullptr){
+        _rotate(node);
+        return node;
+    }
+    bool zigzig = (grandparent->_left == parent) == (parent->_left == node);
+    if (zigzig){
+        _rotate(parent);
+        _rotate(node);
+    }
+    else  {
+        _rotate(node);
+        _rotate(node);
+    }
+    return _splay(node);
+}
+
+template<typename TreeItem>
+SplayTreeNode<TreeItem> *SplayTree<TreeItem>::_search(SplayTreeNode<TreeItem> *node, TreeItem item) {
+    if (node == nullptr)
+        return nullptr;
+    if (item == node->value())
+        return _splay(node);
+    if (item < node->value() && node->_left != nullptr)
+        return _search(node->_left, item);
+    if (item > node->value() && node->_right != nullptr)
+        return _search(node->_right, item);
+    return _splay(node);
+}
+
+template<typename TreeItem>
+std::pair<SplayTreeNode<TreeItem> *, SplayTreeNode<TreeItem> *> SplayTree<TreeItem>::_split(TreeItem key) {
+    if (_root == nullptr)
+        return {nullptr, nullptr};
+    SplayTreeNode<TreeItem> * temp = _search(_root, key);
+    if (temp->value() == key)
+        return {temp->_left, temp->_right};
+    if (temp->value() < key) {
+        SplayTreeNode<TreeItem> * right = temp->_right;
+        temp->_right = nullptr;
+        return {temp, right};
+    }
+    SplayTreeNode<TreeItem> * left = temp->_left;
+    temp->_left = nullptr;
+    return {left, temp};
+}
+
+template<typename TreeItem>
+TreeIterator<TreeItem> SplayTree<TreeItem>::begin() {
+    if (_root == nullptr)
+        return TreeIterator<TreeItem>(nullptr);
+    SplayTreeNode<TreeItem> * cur = _root;
+    while (cur->_left != nullptr)
+        cur = cur->_left;
+    return TreeIterator<TreeItem>(cur);
+}
+
+template<typename TreeItem>
+TreeIterator<TreeItem> SplayTree<TreeItem>::end() {
+    return TreeIterator<TreeItem>(nullptr);
 }
 
 

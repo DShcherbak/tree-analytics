@@ -134,3 +134,21 @@ TEST(RBTree, CompareWithSTL){
         EXPECT_TRUE(tree.search(*it) != nullptr);
     }
 }
+
+TEST(RBTree, Iterator){
+    std::vector <int> v;
+    RedBlackTree<int> tree;
+
+    for (int i = 0; i < 10; ++i) {
+        tree.insert(i);
+        v.push_back(i);
+    }
+    auto p = tree.print();
+    for (auto i : p)
+        std::cout << i.first << " " << i.second << "\n";/*
+    int k = 0;
+    for (auto it = tree.begin(); it!= tree.end(); ++it, k++)
+        EXPECT_EQ(*it, v[k]);*/
+
+
+}

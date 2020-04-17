@@ -4,6 +4,7 @@
 
 #include <gtest/gtest.h>
 #include "../src/SplayTree.hpp"
+#include "../src/Tree.hpp"
 #include <cmath>
 #include <set>
 
@@ -77,4 +78,18 @@ TEST(SplayTree, CompareWithSTL){
     }
     for (auto it = s.begin(); it != s.end(); ++it)
         EXPECT_TRUE(tree.search(*it) != nullptr);
+}
+
+TEST(SplayTree, Iterator){
+    std::vector <int> v;
+    SplayTree<int> tree;
+    for (int i = 0; i < 100; ++i) {
+        tree.insert(2 * i);
+        v.push_back(2 * i);
+    }
+    int k = 0;
+    for (auto it = tree.begin(); it!= tree.end(); ++it, ++k){
+        EXPECT_EQ(*it, v[k]);
+    }
+
 }
