@@ -27,6 +27,32 @@ public:
 
 template<typename T>
 class BPlusTree {
+    class Iterator {
+    private:
+        shared_ptr<BPlusNode<T>> current_node;
+        size_t current_position;
+    public:
+        Iterator(shared_ptr<BPlusNode<T>> current_node, size_t current_position):
+                current_node{current_node}, current_position{current_position} {}
+
+        Iterator &operator++() {
+            ++current_position;
+            if (current_position == current_node->_info.size()) {
+                current_node = current_node->_right_sibling;
+                current_position = 0;
+            }
+        }
+
+        BPlusNode<T> operator*() {
+            return *(current_node->_info[current_position]);
+        }
+
+        bool operator!=(const Iterator &other) {
+            return (this->current_node == other.current_node && this->current_position == other.current_position);
+        }
+
+    };
+
 public:
     explicit BPlusTree(int t) : _t{t} {
         _root = std::make_shared<BPlusNode<T> >();
@@ -39,6 +65,21 @@ public:
 
     bool remove(int key);
 
+    Iterator begin(){
+        auto answer = _root;
+        while(!answer->_leaf){
+            answer = answer->_children[0];
+        }
+        return Iterator(answer, 0);
+    }
+
+    Iterator end(){
+        auto answer = _root;
+        while(!answer->_leaf){
+            answer = answer->_children[answer->_children.size() - 1];
+        }
+        return Iterator(answer, answer->_children.size() - 1);
+    }
 private:
 
     void _removeInNode(shared_ptr<BPlusNode<T> > node, int key);
@@ -55,38 +96,6 @@ private:
     int _t;
 };
 
-template<class Item>
-class Iterator {
-public:
-    virtual void First() = 0;
-
-    virtual void Next() = 0;
-
-    virtual bool IsDone() const = 0;
-
-    virtual Item CurrentItem() const = 0;
-
-protected:
-    Iterator();
-};
-
-template<class Item>
-class BPlusNodeIterator : public Iterator<Item> {
-public:
-    BPlusNodeIterator(shared_ptr<BPlusNode<Item>> aNode);
-
-    virtual void First();
-
-    virtual void Next();
-
-    virtual bool IsDone() const;
-
-    virtual Item CurrentItem() const;
-
-private:
-    shared_ptr<BPlusNode<Item>> _node;
-    long _current;
-};
 
 #include "BPlusTree.tpp"
 
