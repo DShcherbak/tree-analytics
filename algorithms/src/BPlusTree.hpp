@@ -32,23 +32,28 @@ class BPlusTree {
         shared_ptr<BPlusNode<T>> current_node;
         size_t current_position;
     public:
-        Iterator(shared_ptr<BPlusNode<T>> current_node, size_t current_position):
+        Iterator(shared_ptr<BPlusNode<T>> current_node, size_t current_position) :
                 current_node{current_node}, current_position{current_position} {}
 
         Iterator &operator++() {
             ++current_position;
-            if (current_position == current_node->_info.size()) {
+            if (current_position == current_node->_info.size() && current_node->_right_sibling != nullptr) {
                 current_node = current_node->_right_sibling;
                 current_position = 0;
             }
+            return *this;
         }
 
-        BPlusNode<T> operator*() {
+        T operator*() {
             return *(current_node->_info[current_position]);
         }
 
         bool operator!=(const Iterator &other) {
-            return (this->current_node == other.current_node && this->current_position == other.current_position);
+            if (this->current_position >= current_node->_info.size() &&
+                other.current_position >= other.current_node->_info.size()){
+                return false;
+            }
+            return (this->current_node != other.current_node || this->current_position != other.current_position);
         }
 
     };
@@ -65,21 +70,22 @@ public:
 
     bool remove(int key);
 
-    Iterator begin(){
+    Iterator begin() {
         auto answer = _root;
-        while(!answer->_leaf){
+        while (!answer->_leaf) {
             answer = answer->_children[0];
         }
         return Iterator(answer, 0);
     }
 
-    Iterator end(){
+    Iterator end() {
         auto answer = _root;
-        while(!answer->_leaf){
+        while (!answer->_leaf) {
             answer = answer->_children[answer->_children.size() - 1];
         }
-        return Iterator(answer, answer->_children.size() - 1);
+        return Iterator(answer, answer->_info.size());
     }
+
 private:
 
     void _removeInNode(shared_ptr<BPlusNode<T> > node, int key);
