@@ -20,7 +20,7 @@ public:
     shared_ptr<AVLNode> _parent;
     int _height{1};
 
-    AVLNode<Item>(Item key, shared_ptr<AVLNode> left = nullptr, shared_ptr<AVLNode> right = nullptr,
+    explicit AVLNode<Item>(Item key, shared_ptr<AVLNode> left = nullptr, shared_ptr<AVLNode> right = nullptr,
                   shared_ptr<AVLNode> parent = nullptr)
             : _key{key}, _left{left}, _right{right}, _parent{parent} {}
 
@@ -52,6 +52,7 @@ public:
         print(_root);
         std::cout << std::endl;
     };
+
 private:
     shared_ptr<AVLNode<Item>> _root;
 
@@ -62,6 +63,10 @@ private:
     void _rotateRight(shared_ptr<AVLNode<Item>>);
 
     void _bigRotateRight(shared_ptr<AVLNode<Item>>);
+
+    shared_ptr<AVLNode<Item>> _next(shared_ptr<AVLNode<Item>> node);
+
+    shared_ptr<AVLNode<Item>> _previous(shared_ptr<AVLNode<Item>> node);
 
     void print(shared_ptr<AVLNode<Item>> node) {
         if (node == nullptr)
