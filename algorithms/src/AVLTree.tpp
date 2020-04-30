@@ -89,6 +89,8 @@ shared_ptr<AVLNode<Item>> AVLTree<Item>::search(Item key) {
 
 template<typename Item>
 void AVLTree<Item>::insert(Item key) {
+    ++count;
+
     if (_root == nullptr) {
         _root = make_shared<AVLNode<Item>>(key, nullptr, nullptr, nullptr);
         return;
@@ -182,6 +184,7 @@ template<typename Item>
 void AVLTree<Item>::remove(Item key) {
     auto node = search(key);
     if (!node) return;
+    --count;
     if (!node->_left && !node->_right) {
         if (node->_parent) {
             if (node->_parent->_left == node) {
@@ -226,7 +229,7 @@ void AVLTree<Item>::remove(Item key) {
             nearest->_parent->_right = nullptr;
         }
 
-        if (node->_parent){
+        if (node->_parent) {
             if (node->_parent->_right == node) {
                 node->_parent->_right = nearest;
             } else {
