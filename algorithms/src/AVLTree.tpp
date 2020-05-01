@@ -129,7 +129,7 @@ void AVLTree<Item>::insert(Item key) {
             if (node_for_insert->_left->diff() == 1 || node_for_insert->_left->diff() == 0) {
                 _rotateRight(node_for_insert);
                 return;
-            } else if (node_for_insert->_left->diff() == 1) {
+            } else if (node_for_insert->_left->diff() == -1) {
                 _bigRotateRight(node_for_insert);
             }
         } else if (node_for_insert->diff() == 0)
@@ -207,7 +207,7 @@ void AVLTree<Item>::remove(Item key) {
                     if (node->_left->diff() == 1 || node->_left->diff() == 0) {
                         _rotateRight(node);
                         return;
-                    } else if (node->_left->diff() == 1) {
+                    } else if (node->_left->diff() == -1) {
                         _bigRotateRight(node);
                     }
                 } else if (node->diff() == 0) {

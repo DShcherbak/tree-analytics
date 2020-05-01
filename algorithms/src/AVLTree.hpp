@@ -21,7 +21,7 @@ public:
     int _height{1};
 
     explicit AVLNode<Item>(Item key, shared_ptr<AVLNode> left = nullptr, shared_ptr<AVLNode> right = nullptr,
-                           shared_ptr<AVLNode> parent = nullptr, shared_ptr<AVLNode> next = nullptr)
+                           shared_ptr<AVLNode> parent = nullptr)
             : _key{key}, _left{left}, _right{right}, _parent{parent} {}
 
     void fixHeight() {
@@ -71,9 +71,8 @@ public:
 
     void remove(Item);
 
-    void print() {
-        print(_root);
-        std::cout << std::endl;
+    std::string print() {
+        return print(_root);
     };
 
     Iterator begin() {
@@ -106,15 +105,17 @@ private:
 
     static shared_ptr<AVLNode<Item>> _previous(shared_ptr<AVLNode<Item>> node);
 
-    void print(shared_ptr<AVLNode<Item>> node) {
+    std::string print(shared_ptr<AVLNode<Item>> node) {
         if (node == nullptr)
-            return;
-        std::cout << node->_key;
-        if (node->_left || node->_right) std::cout << "(";
-        print(node->_left);
-        if (node->_left && node->_right) std::cout << ",";
-        print(node->_right);
-        if (node->_left || node->_right) std::cout << ")";
+            return "";
+        std::string answer;
+        answer += std::to_string(node->_key);
+        if (node->_left || node->_right) answer += "(";
+        answer += print(node->_left);
+        if (node->_left && node->_right) answer += ",";
+        answer += print(node->_right);
+        if (node->_left || node->_right) answer += ")";
+        return answer;
     }
 };
 
